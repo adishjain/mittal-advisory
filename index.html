@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mittal Advisory - Strategic Business Consulting</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+            cursor: auto;
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #e9ecef;
+            border-top: 3px solid #2c3e50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        body.dark {
+            background: #000;
+            color: #fff;
+            cursor: none;
+        }
+        
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ff6b35, #f7931e);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            mix-blend-mode: difference;
+            opacity: 0;
+        }
+        
+        body.dark .cursor {
+            opacity: 1;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1000;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark .theme-toggle {
+            background: #ff6b35;
+            color: #000;
+        }
+        
+        body.dark .theme-toggle:hover {
+            background: #f7931e;
+        }
+        
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 2rem;
+            position: relative;
+        }
+        
+        body.dark .hero {
+            background: radial-gradient(ellipse at center, #1a1a1a 0%, #000 70%);
+            overflow: hidden;
+        }
+        
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        body.dark .floating-elements {
+            opacity: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            border-radius: 50%;
+            animation: float-up 8s infinite linear;
+        }
+        
+        @keyframes float-up {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .neural-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, #ff6b35 1px, transparent 1px),
+                radial-gradient(circle at 80% 50%, #f7931e 1px, transparent 1px),
+                radial-gradient(circle at 40% 20%, #ff6b35 1px, transparent 1px),
+                radial-gradient(circle at 60% 80%, #f7931e 1px, transparent 1px);
+            background-size: 100px 100px, 150px 150px, 200px 200px, 120px 120px;
+            animation: neural-pulse 8s ease-in-out infinite;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        body.dark .neural-bg {
+            opacity: 0.1;
+        }
+        
+        @keyframes neural-pulse {
+            0%, 100% { opacity: 0.1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.05); }
+        }
+        
+        .logo {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark .logo {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffaa00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 300;
+            color: #34495e;
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark .subtitle {
+            color: #fff;
+            opacity: 0.8;
+        }
+        
+        .tagline {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: #5a6c7d;
+            max-width: 800px;
+            margin: 0 auto 1rem;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            text-align: justify;
+        }
+        
+        body.dark .tagline {
+            color: #fff;
+            opacity: 0.6;
+        }
+        
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        .service-card {
+            background: white;
+            padding: 1.5rem 1.2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+            cursor: pointer;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+            border-color: #2c3e50;
+        }
+        
+        .service-card:hover .service-icon {
+            transform: scale(1.1);
+            background: #1a252f;
+        }
+        
+        .service-card:hover .service-title {
+            color: #2c3e50;
+        }
+        
+        body.dark .service-card {
+            background: linear-gradient(145deg, rgba(255,107,53,0.05), rgba(247,147,30,0.05));
+            border: 1px solid rgba(255,107,53,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        body.dark .service-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            border-color: rgba(255,107,53,0.3);
+            box-shadow: 0 25px 50px rgba(255,107,53,0.1);
+        }
+        
+        body.dark .service-card:hover .service-icon {
+            transform: scale(1.2);
+            color: #f7931e;
+            background: transparent;
+        }
+        
+        body.dark .service-card:hover .service-title {
+            color: #f7931e;
+        }
+        
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            background: #2c3e50;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.8rem;
+            transition: all 0.3s ease;
+            font-family: monospace;
+        }
+        
+        body.dark .service-icon {
+            background: transparent;
+            font-size: 4rem;
+            width: auto;
+            height: auto;
+            color: #ff6b35;
+        }
+        
+        .service-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark .service-title {
+            color: #ff6b35;
+        }
+        
+        .service-desc {
+            color: #5a6c7d;
+            line-height: 1.7;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark .service-desc {
+            color: #fff;
+            opacity: 0.8;
+            font-weight: 300;
+        }
+        
+        .contact-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            margin: 2rem auto;
+            border: 1px solid #e9ecef;
+        }
+        
+        body.dark .contact-form {
+            background: linear-gradient(145deg, rgba(255,107,53,0.05), rgba(247,147,30,0.05));
+            border: 1px solid rgba(255,107,53,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        body.dark .form-group label {
+            color: #ff6b35;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2c3e50;
+            box-shadow: 0 0 0 3px rgba(44,62,80,0.1);
+        }
+        
+        body.dark .form-group input,
+        body.dark .form-group textarea {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,107,53,0.2);
+            color: #fff;
+        }
+        
+        body.dark .form-group input:focus,
+        body.dark .form-group textarea:focus {
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255,107,53,0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            background: #34495e;
+            transform: translateY(-2px);
+        }
+        
+        body.dark .submit-btn {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: #000;
+        }
+        
+        body.dark .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255,107,53,0.3);
+        }
+        
+        .cta-btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: #2c3e50;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-btn:hover {
+            background: #34495e;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44,62,80,0.3);
+        }
+        
+        body.dark .cta-btn {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: #000;
+            border-radius: 50px;
+            padding: 1.5rem 3rem;
+            font-weight: 600;
+        }
+        
+        body.dark .cta-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(255,107,53,0.3);
+        }
+        
+        .launch-info {
+            margin-top: 2rem;
+            color: #7f8c8d;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark .launch-info {
+            color: #fff;
+            opacity: 0.6;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 50vw;
+            height: 100vh;
+            background: #2c3e50;
+            clip-path: polygon(30% 0%, 100% 0%, 100% 100%, 0% 100%);
+            z-index: 9998;
+            animation: page-fold 5s ease-in-out infinite;
+            transform-origin: right center;
+            pointer-events: none;
+        }
+        
+        body::after {
+            content: 'COMING\ASOON';
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 50vw;
+            height: 100vh;
+            background: transparent;
+            clip-path: polygon(30% 0%, 100% 0%, 100% 100%, 0% 100%);
+            z-index: 9999;
+            animation: page-fold 5s ease-in-out infinite;
+            transform-origin: right center;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 3rem;
+            letter-spacing: 0.1em;
+            text-align: center;
+            padding: 45vh 2rem 2rem 4rem;
+            word-break: break-word;
+            pointer-events: none;
+            white-space: pre-line;
+        }
+        
+        @keyframes page-fold {
+            0% { transform: rotateY(0deg); opacity: 0.3; }
+            50% { transform: rotateY(-15deg); opacity: 0.7; }
+            100% { transform: rotateY(0deg); opacity: 1; }
+        }
+        
+        .construction-stamp {
+            position: fixed;
+            top: 30%;
+            left: 25%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            padding: 1.5rem 3rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            letter-spacing: 0.2em;
+            z-index: 100;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            box-shadow: 
+                0 10px 30px rgba(44, 62, 80, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            pointer-events: none;
+        }
+        
+        body.dark::before {
+            background: #ff6b35;
+        }
+        
+        body.dark .construction-stamp {
+            background: rgba(255, 107, 53, 1);
+            color: #000;
+            border-color: rgba(0, 0, 0, 0.2);
+            box-shadow: 
+                0 10px 30px rgba(255, 107, 53, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .services { grid-template-columns: 1fr; gap: 2rem; }
+            .hero { padding: 1rem; }
+            .theme-toggle { top: 1rem; left: 1rem; font-size: 0.8rem; padding: 0.6rem 1rem; }
+            .construction-stamp { font-size: 1rem; padding: 1rem 2rem; }
+            
+            body::after {
+                font-size: 1.5rem;
+                padding: 45% 0rem 2rem 0rem;
+                line-height: 1.3;
+                width: 40vw;
+                clip-path: polygon(5% 0%, 100% 0%, 100% 100%, 0% 100%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+    </div>
+    <div class="cursor" id="cursor"></div>
+    <button class="theme-toggle" onclick="toggleTheme()">🚀 Next-gen</button>
+    
+    <div class="hero">
+        <div class="neural-bg"></div>
+        <div class="floating-elements" id="floating"></div>
+        
+        <h1 class="logo">MITTAL</h1>
+        <div class="subtitle">ADVISORY</div>
+        <p class="tagline">We partner with forward-thinking organizations to unlock their full potential through strategic consulting, operational excellence, and sustainable growth initiatives. Our expertise transforms challenges into opportunities.</p>
+        
+        <div class="services">
+            <div class="service-card">
+                <div class="service-icon">▲</div>
+                <h3 class="service-title">Strategic Planning</h3>
+                <p class="service-desc">Comprehensive business strategy development and implementation to drive sustainable growth and competitive advantage.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">⚙</div>
+                <h3 class="service-title">Operational Excellence</h3>
+                <p class="service-desc">Process optimization and efficiency improvements to enhance productivity and reduce operational costs.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">↗</div>
+                <h3 class="service-title">Business Growth</h3>
+                <p class="service-desc">Market expansion strategies and revenue optimization to accelerate business growth and market penetration.</p>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <div class="contact-form">
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company">Company</label>
+                        <input type="text" id="company" name="company">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" placeholder="Tell us about your project..." required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+            <div class="launch-info">
+                <p>Coming Soon • Professional Consulting Services</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Loading screen
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 1000);
+        });
+        
+        // Contact form
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // Create mailto link with form data
+            const subject = encodeURIComponent('Contact from ' + data.name);
+            const body = encodeURIComponent(
+                `Name: ${data.name}\n` +
+                `Email: ${data.email}\n` +
+                `Company: ${data.company || 'Not specified'}\n\n` +
+                `Message:\n${data.message}`
+            );
+            
+            window.location.href = `mailto:contact@mittaladvisory.com?subject=${subject}&body=${body}`;
+        });
+        
+        function toggleTheme() {
+            const body = document.body;
+            const toggle = document.querySelector('.theme-toggle');
+            
+            body.classList.toggle('dark');
+            
+            if (body.classList.contains('dark')) {
+                toggle.innerHTML = '☀️ Light';
+                startFloatingElements();
+            } else {
+                toggle.innerHTML = '🚀 Next-gen';
+                stopFloatingElements();
+            }
+        }
+        
+        function createFloatingElement() {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.animationDelay = Math.random() * 8 + 's';
+            element.style.animationDuration = (Math.random() * 4 + 6) + 's';
+            document.getElementById('floating').appendChild(element);
+            
+            setTimeout(() => element.remove(), 10000);
+        }
+        
+        let floatingInterval;
+        
+        function startFloatingElements() {
+            floatingInterval = setInterval(createFloatingElement, 500);
+            // Start custom cursor
+            document.addEventListener('mousemove', updateCursor);
+        }
+        
+        function stopFloatingElements() {
+            clearInterval(floatingInterval);
+            document.getElementById('floating').innerHTML = '';
+            // Stop custom cursor
+            document.removeEventListener('mousemove', updateCursor);
+        }
+        
+        function updateCursor(e) {
+            const cursor = document.getElementById('cursor');
+            cursor.style.left = e.clientX - 10 + 'px';
+            cursor.style.top = e.clientY - 10 + 'px';
+        }
+    </script>
+</body>
+</html>
